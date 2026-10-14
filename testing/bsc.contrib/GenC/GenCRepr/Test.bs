@@ -40,6 +40,16 @@ struct ThingMsg =
   swapXY :: Bool
   deltaZ :: Int 5
 
+-- A value-method interface and a tuple both use MetaInterface. Keep them
+-- inside a struct to exercise recursive C declaration and byte generation.
+interface Snapshot =
+  value :: UInt 8
+  count :: UInt 16
+
+struct InterfaceRecord =
+  snapshot :: Snapshot
+  pair :: (Bool, UInt 8)
+
 actTestThing :: ThingMsg -> Action
 actTestThing tm = do
   $display (cshow tm)
@@ -55,7 +65,7 @@ actTestThing tm = do
 {-# verilog sysTest #-}
 sysTest :: Module Empty
 sysTest = module
-  writeCDecls "test" (_ :: (Baz, Qux, Kaz, Tux, Enum, Maybe (Int 16), Maybe (Bit 32), Either Bool (Vector 3 (UInt 8)), ThingMsg))
+  writeCDecls "test" (_ :: (Baz, Qux, Kaz, Tux, Enum, Maybe (Int 16), Maybe (Bit 32), Either Bool (Vector 3 (UInt 8)), ThingMsg, InterfaceRecord))
 
   rules
     when True ==> do
@@ -65,4 +75,15 @@ sysTest = module
       $display (cshow $ GenCRepr.packBytes E4)
       actTestThing (ThingMsg {thing=Thing {w=1:>2:>nil; x=1; y=2; z=0x1234;}; swapXY=False; deltaZ=8;})
       actTestThing (ThingMsg {thing=Thing {w=1:>2:>nil; x=1; y=2; z=0x1234;}; swapXY=True; deltaZ=negate 8;})
+      let initial = InterfaceRecord {
+        snapshot=Snapshot {value=0x12; count=0x3456;};
+        pair=(True, 0x78);
+      }
+      let input :: Bit 40 = GenCRepr.pack initial
+      $display "interface bytes: %h" input
+      output <- test_interface_fn input
+      $display "interface C bytes: %h" output
+      let result :: InterfaceRecord = GenCRepr.unpack output
+      $display "interface roundtrip: %h %h %d %h"
+        result.snapshot.value result.snapshot.count result.pair.fst result.pair.snd
       $finish

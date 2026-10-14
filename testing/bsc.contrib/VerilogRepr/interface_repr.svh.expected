@@ -1,0 +1,14 @@
+package interface_repr;
+
+// ValueView
+typedef struct packed {
+  logic valid_flag;
+  logic [7:0] payload;
+} value_view_t;
+
+// Envelope
+typedef struct packed {
+  value_view_t view;
+} envelope_t;
+
+endpackage

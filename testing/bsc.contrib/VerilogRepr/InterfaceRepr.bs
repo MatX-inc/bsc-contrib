@@ -1,0 +1,33 @@
+-- Copyright (c) 2026 MatX, Inc.
+-- SPDX-License-Identifier: BSD-3-Clause
+package InterfaceRepr where
+
+import VerilogRepr
+
+interface ValueView =
+  validFlag :: Bool
+  payload :: Bit 8
+ deriving (Bits)
+
+interface ZeroView =
+  ghost :: Bit 0
+ deriving (Bits)
+
+struct Envelope =
+  view :: ValueView
+  ignored :: ZeroView
+ deriving (Bits)
+
+renderAll :: RenderVerilog ()
+renderAll = do
+  -- Exercise zero-width dispatch directly as well as omission of empty fields.
+  verilogType (prx :: ZeroView)
+  verilogType (prx :: Envelope)
+  return ()
+
+{-# synthesize main #-}
+main :: Module Empty
+main = writeVerilogAndJsonFile
+  "interface_repr.svh" "interface_repr.json"
+  "package interface_repr;\n" "endpackage"
+  renderAll
