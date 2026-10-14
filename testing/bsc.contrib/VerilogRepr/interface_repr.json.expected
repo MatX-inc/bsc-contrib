@@ -1,0 +1,65 @@
+[
+  {
+    "bsType": "Envelope",
+    "bsPackage": "InterfaceRepr",
+    "size": 9,
+    "baseType": "envelope_t",
+    "arraySize": [],
+    "sort": "Struct",
+    "fields": [
+      {
+        "name": "view",
+        "size": 9,
+        "bsType": "ValueView",
+        "baseType": "value_view_t",
+        "arraySize": []
+      }
+    ]
+  },
+  {
+    "bsType": "ValueView",
+    "bsPackage": "InterfaceRepr",
+    "size": 9,
+    "baseType": "value_view_t",
+    "arraySize": [],
+    "sort": "Struct",
+    "fields": [
+      {
+        "name": "valid_flag",
+        "size": 1,
+        "bsType": "Bool",
+        "baseType": "logic",
+        "arraySize": []
+      },
+      {
+        "name": "payload",
+        "size": 8,
+        "bsType": "Bit 8",
+        "baseType": "logic",
+        "arraySize": [
+          8
+        ]
+      }
+    ]
+  },
+  {
+    "bsType": "Bit 8",
+    "bsPackage": "Prelude",
+    "size": 8,
+    "baseType": "logic",
+    "arraySize": [
+      8
+    ],
+    "sort": "Primitive",
+    "signed": false
+  },
+  {
+    "bsType": "Bool",
+    "bsPackage": "Prelude",
+    "size": 1,
+    "baseType": "logic",
+    "arraySize": [],
+    "sort": "Primitive",
+    "signed": false
+  }
+]

@@ -22,3 +22,6 @@ Packed res: f9fa0201122c
 0xf9fa0201122c
 Cons 0xf9 (Cons 0xfa (Cons 0x02 (Cons 0x01 (Cons 0x12 (Cons 0x2c Nil)))))
 Thing {w=[  -7,   -6]; x=  2; y=  1; z=  4652}
+interface bytes: 1234560178
+interface C bytes: 13cba9007a
+interface roundtrip: 13 cba9 0 7a

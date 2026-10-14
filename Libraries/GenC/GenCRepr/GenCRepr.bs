@@ -263,6 +263,39 @@ instance (GenCStructBody bodyRepr n, TypeNames ta) =>
     "\treturn val;\n" +++
     "}")
 
+-- Interfaces with serializable value methods have the same named struct layout
+instance (GenCStructBody bodyRepr n, TypeNames ta) =>
+         GenCRepr' (Meta (MetaData name pkg ta 1) (Meta (MetaInterface cName cIdx numFields) bodyRepr)) n where
+  typeName' _ = stringOf name +++ typeNames (_ :: ta)
+
+  genCType' p = (typeName' p, "")
+  genCTypeDecl' p = Just $ "typedef struct " +++ typeName' p +++ " {\n" +++
+    genCStructBody (_ :: bodyRepr) False +++
+    "} " +++ typeName' p +++ ";\n" +++
+    "enum { size_" +++ typeName' p +++ " = " +++ integerToString (valueOf n) +++ " };"
+
+  packBytes' (Meta (Meta y)) = packStructBody y
+
+  genCPack' p val buf = "pack_" +++ typeName' p +++ "(" +++ val +++ ", " +++ buf +++ ");"
+
+  genCPackDecl' p = Just (
+    "void pack_" +++ typeName' p +++ "(" +++ typeName' p +++ " val, uint8_t **buf);",
+    "void pack_" +++ typeName' p +++ "(" +++ typeName' p +++ " val, uint8_t **buf) {\n" +++
+    genCPackStructBody (_ :: bodyRepr) False "" +++ "\n" +++
+    "}")
+
+  unpackBytesS' = liftM Meta $ liftM Meta unpackStructBody
+
+  genCUnpack' p val buf = val +++ " = unpack_" +++ typeName' p +++ "(" +++ buf +++ ");"
+
+  genCUnpackDecl' p = Just (
+    typeName' p +++ " unpack_" +++ typeName' p +++ "(uint8_t **buf);",
+    typeName' p +++ " unpack_" +++ typeName' p +++ "(uint8_t **buf) {\n" +++
+    "\t" +++ typeName' p +++ " val;\n" +++
+    genCUnpackStructBody (_ :: bodyRepr) False "" +++ "\n" +++
+    "\treturn val;\n" +++
+    "}")
+
 -- Single-constructor data case, same as above
 instance (GenCStructBody bodyRepr n, TypeNames ta) =>
          GenCRepr' (Meta (MetaData name pkg ta 1) (Meta (MetaConsAnon cName cIdx numFields) bodyRepr)) n where

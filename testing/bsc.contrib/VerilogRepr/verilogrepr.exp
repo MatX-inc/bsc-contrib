@@ -10,6 +10,10 @@ if { $contribtest } {
     compare_file chess.svh
     compare_file chess_types.json
 
+    compile_verilog_pass InterfaceRepr.bs
+    compare_file interface_repr.svh
+    compare_file interface_repr.json
+
     restore_path
 
 }

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <assert.h>
 
 #include "test.h"
 
@@ -34,5 +35,30 @@ unsigned long long test_fn(unsigned long long in) {
     out |= out_buf[i];
   }
   printf("Packed res: %llx\n", out);
+  return out;
+}
+
+unsigned long long test_interface_fn(unsigned long long in) {
+  assert(size_InterfaceRecord == 5);
+  uint8_t buf[size_InterfaceRecord], *ptr = buf;
+  for (int i = size_InterfaceRecord - 1; i >= 0; i--) {
+    buf[i] = in & 0xFF;
+    in >>= 8;
+  }
+  InterfaceRecord val = unpack_InterfaceRecord(&ptr);
+  assert(ptr == buf + size_InterfaceRecord);
+  assert(val.snapshot.value == 0x12 && val.snapshot.count == 0x3456);
+  assert(val.pair.fst && val.pair.snd == 0x78);
+  val.snapshot.value++;
+  val.snapshot.count ^= 0xFFFF;
+  val.pair.fst = !val.pair.fst;
+  val.pair.snd += 2;
+  ptr = buf;
+  pack_InterfaceRecord(val, &ptr);
+  assert(ptr == buf + size_InterfaceRecord);
+  unsigned long long out = 0;
+  for (int i = 0; i < size_InterfaceRecord; i++) {
+    out = (out << 8) | buf[i];
+  }
   return out;
 }

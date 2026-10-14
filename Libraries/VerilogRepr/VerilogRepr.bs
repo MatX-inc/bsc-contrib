@@ -685,6 +685,15 @@ class VerilogImpl' a c where
   verilogImpl' :: a -> NumArg c -> String -> String -> RenderVerilog ()
 
 -- Pure struct cases
+-- Value interfaces retain the same named-field layout as structs.
+instance (VerilogFields a) =>
+    VerilogImpl'
+      (Meta (MetaData name pkg ta 1)
+        (Meta (MetaInterface cname 0 nfields) a)) c where
+  verilogImpl' _ = verilogImpl'
+    (prx :: Meta (MetaData name pkg ta 1)
+      (Meta (MetaConsNamed cname 0 nfields) a))
+
 instance (VerilogFields a) =>
     VerilogImpl'
       (Meta (MetaData name pkg ta 1)
@@ -876,6 +885,10 @@ class TagNames a where
   tagNames :: a -> String -> List String
 
 instance TagNames (Meta (MetaConsNamed name i n) a) where
+  tagNames _ baseName = lst $ toUpperSnakeCase $ baseName +++ stringOf name
+
+-- Also needed by the zero-width single-constructor case of VerilogImpl.
+instance TagNames (Meta (MetaInterface name i n) a) where
   tagNames _ baseName = lst $ toUpperSnakeCase $ baseName +++ stringOf name
 
 instance TagNames (Meta (MetaConsAnon name i n) a) where
